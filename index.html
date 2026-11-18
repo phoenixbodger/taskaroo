@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskaroo - Categories, Notes & Subtasks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155', 600: '#475569' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 dark:bg-dark-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white dark:bg-dark-800 border-b border-slate-200 dark:border-dark-700 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-md">
+                    <i class="fa-solid fa-diagram-project text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">Taskaroo</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Categories, Notes & Subtasks</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="openCategoryModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition flex items-center shadow-sm">
+                    <i class="fa-solid fa-folder-plus mr-2"></i> New Category
+                </button>
+                <button onclick="openTaskModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition flex items-center shadow-sm">
+                    <i class="fa-solid fa-plus mr-2"></i> New Task
+                </button>
+                <div class="h-6 w-px bg-slate-200 dark:bg-dark-700 mx-1"></div>
+                <button onclick="exportData()" title="Backup JSON" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-700 rounded-lg transition">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+                <label title="Restore JSON" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-700 rounded-lg transition cursor-pointer">
+                    <i class="fa-solid fa-upload"></i>
+                    <input type="file" id="importFile" class="hidden" onchange="importData(event)">
+                </label>
+                <button onclick="toggleDarkMode()" title="Toggle Theme" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-700 rounded-lg transition">
+                    <i class="fa-solid fa-moon dark:fa-sun" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+<!-- Main Workspace -->
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
+
+        <!-- Sidebar: Projects & Notes -->
+        <aside class="w-full md:w-80 flex flex-col gap-6 shrink-0">
+            <!-- Categories Section -->
+            <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm border border-slate-200 dark:border-dark-700 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Categories</h2>
+                    <span id="categoryCount" class="text-xs bg-slate-100 dark:bg-dark-700 px-2 py-0.5 rounded-full font-medium">0</span>
+                </div>
+                <div id="categoryList" class="space-y-1 max-h-80 overflow-y-auto pr-1"></div>
+            </div>
+
+            <!-- Active Category Notes Section -->
+            <div id="categoryNotesCard" class="bg-white dark:bg-dark-800 rounded-xl shadow-sm border border-slate-200 dark:border-dark-700 p-4 flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Category Notes</h2>
+                    <button onclick="saveCategoryNotes()" id="saveNotesBtn" class="text-xs text-indigo-600 dark:text-indigo-400 font-medium hover:underline hidden">Save Changes</button>
+                </div>
+                <p id="currentCategoryTitle" class="text-xs font-medium text-slate-400 dark:text-slate-500 mb-2">Select a category to view/edit notes</p>
+                <textarea id="categoryNotesInput" disabled oninput="document.getElementById('saveNotesBtn').classList.remove('hidden')" placeholder="Add specifications, reference links, or notes for this category..." class="w-full flex-1 bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition"></textarea>
+            </div>
+        </aside>
+
+        <!-- Main Content: Tasks & Kanban/List View -->
+        <main class="flex-1 flex flex-col gap-4">
+
+            <!-- Controls Bar -->
+            <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm border border-slate-200 dark:border-dark-700 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center w-full sm:w-auto gap-3">
+                    <div class="relative flex-1 sm:w-64">
+                        <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="render()" placeholder="Search tasks & subtasks..." class="w-full bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <select id="priorityFilter" onchange="render()" class="bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">All Priorities</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                    <div class="bg-slate-100 dark:bg-dark-700 p-1 rounded-lg flex space-x-1">
+                        <button onclick="setView('kanban')" id="kanbanBtn" class="px-3 py-1.5 rounded-md text-xs font-medium transition shadow-sm bg-white dark:bg-dark-800 text-indigo-600 dark:text-indigo-400">Kanban</button>
+                        <button onclick="setView('list')" id="listBtn" class="px-3 py-1.5 rounded-md text-xs font-medium transition text-slate-600 dark:text-slate-400">List</button>
+                    </div>
+                </div>
+            </div>
+<!-- Kanban View Container -->
+            <div id="kanbanView" class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+                <!-- To Do Column -->
+                <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm border border-slate-200 dark:border-dark-700 p-4 flex flex-col">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-dark-700 mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center"><i class="fa-solid fa-circle text-[8px] mr-2"></i> To Do</span>
+                        <span id="todoCount" class="text-xs bg-slate-100 dark:bg-dark-700 px-2 py-0.5 rounded-full font-medium">0</span>
+                    </div>
+                    <div id="colTodo" class="flex-1 space-y-3 overflow-y-auto min-h-[200px]" ondragover="allowDrop(event)" ondrop="drop(event, 'To Do')"></div>
+                </div>
+
+                <!-- In Progress Column -->
+                <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm border border-slate-200 dark:border-dark-700 p-4 flex flex-col">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-dark-700 mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-500 flex items-center"><i class="fa-solid fa-circle text-[8px] mr-2"></i> In Progress</span>
+                        <span id="inprogressCount" class="text-xs bg-slate-100 dark:bg-dark-700 px-2 py-0.5 rounded-full font-medium">0</span>
+                    </div>
+                    <div id="colInProgress" class="flex-1 space-y-3 overflow-y-auto min-h-[200px]" ondragover="allowDrop(event)" ondrop="drop(event, 'In Progress')"></div>
+                </div>
+
+                <!-- Done Column -->
+                <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm border border-slate-200 dark:border-dark-700 p-4 flex flex-col">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-dark-700 mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-500 flex items-center"><i class="fa-solid fa-circle text-[8px] mr-2"></i> Done</span>
+                        <span id="doneCount" class="text-xs bg-slate-100 dark:bg-dark-700 px-2 py-0.5 rounded-full font-medium">0</span>
+                    </div>
+                    <div id="colDone" class="flex-1 space-y-3 overflow-y-auto min-h-[200px]" ondragover="allowDrop(event)" ondrop="drop(event, 'Done')"></div>
+                </div>
+            </div>
+<!-- List View Container (Hidden by default) -->
+            <div id="listView" class="bg-white dark:bg-dark-800 rounded-xl shadow-sm border border-slate-200 dark:border-dark-700 overflow-hidden hidden flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-dark-700/50 border-b border-slate-200 dark:border-dark-700 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            <th data-sort="title" onclick="setListSort('title')" title="Sort by task title" class="p-4 text-left cursor-pointer select-none hover:text-indigo-600 dark:hover:text-indigo-400">
+                                <span class="flex items-center gap-1.5">Task & Subtasks <span class="list-sort-ind text-[10px]"></span></span>
+                            </th>
+                            <th data-sort="category" onclick="setListSort('category')" title="Sort by category" class="p-4 text-left cursor-pointer select-none hover:text-indigo-600 dark:hover:text-indigo-400">
+                                <span class="flex items-center gap-1.5">Category <span class="list-sort-ind text-[10px]"></span></span>
+                            </th>
+                            <th data-sort="priority" onclick="setListSort('priority')" title="Sort by priority" class="p-4 text-left cursor-pointer select-none hover:text-indigo-600 dark:hover:text-indigo-400">
+                                <span class="flex items-center gap-1.5">Priority <span class="list-sort-ind text-[10px]"></span></span>
+                            </th>
+                            <th data-sort="status" onclick="setListSort('status')" title="Sort by status" class="p-4 text-left cursor-pointer select-none hover:text-indigo-600 dark:hover:text-indigo-400">
+                                <span class="flex items-center gap-1.5">Status <span class="list-sort-ind text-[10px]"></span></span>
+                            </th>
+                            <th data-sort="due" onclick="setListSort('due')" title="Sort by due date" class="p-4 text-left cursor-pointer select-none hover:text-indigo-600 dark:hover:text-indigo-400">
+                                <span class="flex items-center gap-1.5">Due <span class="list-sort-ind text-[10px]"></span></span>
+                            </th>
+                            <th class="p-4 text-right"></th>
+                        </tr>
+                        <tr class="bg-slate-50/60 dark:bg-dark-800/60 border-b border-slate-200 dark:border-dark-700 text-xs">
+                            <td class="p-2 pl-4 text-[11px] text-slate-400">Click a header to sort · use dropdowns to filter</td>
+                            <td class="p-2">
+                                <select id="listFilterCategory" onchange="render()" title="Filter by category" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-md px-2 py-1.5 text-[11px] text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </td>
+                            <td class="p-2">
+                                <select id="listFilterPriority" onchange="render()" title="Filter by priority" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-md px-2 py-1.5 text-[11px] text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">All</option>
+                                    <option value="High">High</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </td>
+                            <td class="p-2">
+                                <select id="listFilterStatus" onchange="render()" title="Filter by status" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-md px-2 py-1.5 text-[11px] text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">All</option>
+                                    <option value="To Do">To Do</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Done">Done</option>
+                                </select>
+                            </td>
+                            <td class="p-2 text-[11px] text-slate-400">—</td>
+                            <td class="p-2 pr-4 text-right">
+                                <button onclick="clearListFilters()" title="Clear all list filters" class="text-[11px] text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition">Clear filters</button>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody id="listTableBody"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="categoryModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeCategoryModal()"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <form class="bg-white dark:bg-dark-800 rounded-xl shadow-xl border border-slate-200 dark:border-dark-700 w-full max-w-md p-6 space-y-4" onsubmit="handleCategorySubmit(event)">
+                <div class="flex items-center justify-between">
+                    <h3 id="categoryModalTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100"><i class="fa-solid fa-folder-plus text-indigo-600 mr-2"></i> Create New Category</h3>
+                    <button type="button" onclick="closeCategoryModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <input type="hidden" id="categoryIdInput" value="">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Name</label>
+                    <input type="text" id="categoryNameInput" placeholder="Category name..." class="w-full bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Parent Category</label>
+                    <select id="categoryParentSelect" class="w-full bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Notes</label>
+                    <textarea id="categoryModalNotes" placeholder="Notes for this category..." class="w-full bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none h-24"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2 border-t border-slate-200 dark:border-dark-700">
+                    <button type="button" onclick="closeCategoryModal()" class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-dark-700 transition">Cancel</button>
+                    <button type="submit" id="categorySubmitBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition shadow-sm">Create Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<!-- Task Modal -->
+    <div id="taskModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeTaskModal()"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <form class="bg-white dark:bg-dark-800 rounded-xl shadow-xl border border-slate-200 dark:border-dark-700 w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto" onsubmit="handleTaskSubmit(event)">
+                <div class="flex items-center justify-between">
+                    <h3 id="taskModalTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100"><i class="fa-solid fa-circle-plus text-emerald-600 mr-2"></i> Add New Task</h3>
+                    <button type="button" onclick="closeTaskModal()" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <input type="hidden" id="taskIdInput" value="">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Task Title</label>
+                    <input type="text" id="taskTitleInput" placeholder="What needs to be done?" class="w-full bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Category</label>
+                        <select id="taskCategorySelect" class="w-full bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Priority</label>
+                        <select id="taskPriorityInput" class="w-full bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Status</label>
+                        <select id="taskStatusInput" class="w-full bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="To Do">To Do</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Due Date</label>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <input type="datetime-local" id="taskDueInput" class="min-w-0 flex-1 bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <label class="flex items-center gap-1.5 shrink-0 text-sm text-slate-600 dark:text-slate-300 cursor-pointer select-none" title="When completed, this task moves back to To Do with the next due date">
+                                <input type="checkbox" id="taskRecurringInput" onchange="document.getElementById('taskRecurOptions').classList.toggle('hidden', !this.checked)" class="rounded text-emerald-600 focus:ring-emerald-500">
+                                Recurring
+                            </label>
+                        </div>
+                        <div id="taskRecurOptions" class="hidden mt-2 flex items-center gap-1.5 flex-wrap text-sm text-slate-600 dark:text-slate-300">
+                            <span class="text-xs text-slate-500">Every</span>
+                            <input type="number" id="taskRecurAmount" min="1" value="1" title="Repeat every N units of time" class="w-16 bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <select id="taskRecurIntervalInput" class="bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="day">Day(s)</option>
+                                <option value="week">Week(s)</option>
+                                <option value="month">Month(s)</option>
+                                <option value="hour">Hour(s)</option>
+                                <option value="minute">Minute(s)</option>
+                            </select>
+                            <span class="text-xs text-slate-400">·</span>
+                            <span class="text-xs text-slate-500" title="Number of additional repeats after the first occurrence; leave blank to repeat forever">Repeat</span>
+                            <input type="number" id="taskRepeatTimesInput" min="1" value="" placeholder="∞" title="Number of additional repeats after the first occurrence; leave blank to repeat forever" class="w-16 bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <span class="text-xs text-slate-500" title="Number of additional repeats after the first occurrence; leave blank to repeat forever">more time(s)</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Subtasks / Checklist</label>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="newSubtaskInput" onkeydown="if(event.key==='Enter'){event.preventDefault();addDraftSubtask();}" placeholder="Add a subtask step..." class="flex-1 bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button type="button" onclick="addDraftSubtask()" class="px-3 py-2 bg-slate-200 dark:bg-dark-700 hover:bg-slate-300 dark:hover:bg-dark-600 rounded-lg text-xs font-semibold transition">Add</button>
+                    </div>
+                    <div id="draftSubtasksList" class="space-y-1.5 max-h-40 overflow-y-auto"></div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2 border-t border-slate-200 dark:border-dark-700">
+                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-dark-700 transition">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition shadow-sm">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Scripts: split into modules to keep each file small and focused -->
+    <script src="js/state.js"></script>
+    <script src="js/category-helpers.js"></script>
+    <script src="js/category.js"></script>
+    <script src="js/task.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
