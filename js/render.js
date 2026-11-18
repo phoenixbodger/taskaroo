@@ -74,39 +74,42 @@
             const catList = document.getElementById('categoryList');
             document.getElementById('categoryCount').innerText = state.categories.length;
 
-            const renderCategoryRows = (parentId, depth) => {
-                const children = parentId === null ? getTopLevelCategories() : getChildCategories(parentId);
-                return children.map(c => {
-                    const hasChildren = getChildCategories(c.id).length > 0;
-                    const expanded = c.expanded !== false;
-                    const selected = state.activeCategoryIds.includes(c.id);
-                    const rowClasses = selected
-                        ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400'
-                        : 'hover:bg-slate-50 dark:hover:bg-dark-700 text-slate-600 dark:text-slate-300';
-                    return `
-                        <div>
-                            <div onclick="toggleCategory('${c.id}')" class="group flex items-center justify-between px-2 py-2 rounded-lg text-sm font-medium cursor-pointer transition ${rowClasses}" style="padding-left:${8 + depth * 16}px">
-                                <span class="flex items-center min-w-0 gap-1.5">
-                                    <button onclick="toggleCategoryExpanded('${c.id}', event)" class="w-4 shrink-0 text-center text-[10px] ${hasChildren ? 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200' : 'invisible'}" title="${hasChildren ? (expanded ? 'Collapse' : 'Expand') : ''}">
-                                        <i class="fa-solid ${expanded ? 'fa-chevron-down' : 'fa-chevron-right'}"></i>
-                                    </button>
-                                    <input type="checkbox" ${selected ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleCategory('${c.id}')" title="${selected ? 'Remove from filter' : 'Add to filter'}" class="h-3.5 w-3.5 shrink-0 rounded accent-indigo-600 focus:ring-indigo-500 cursor-pointer">
-                                    <i class="fa-solid fa-folder mr-1 text-xs text-amber-500 shrink-0"></i>
-                                    <span class="truncate">${escapeHtml(c.name)}</span>
-                                </span>
-                                <div class="flex items-center shrink-0">
-                                    <button onclick="toggleFavourite('${c.id}', event)" class="${c.favourite ? 'text-amber-500' : 'text-slate-300 dark:text-slate-600 hover:text-amber-500'} transition p-1" title="${c.favourite ? 'Remove from Favourites' : 'Add to Favourites'}"><i class="fa-solid ${c.favourite ? 'fa-star' : 'fa-regular fa-star'} text-xs"></i></button>
-                                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition shrink-0">
-                                    <button onclick="openCategoryModal('${c.id}', event)" class="text-slate-400 hover:text-indigo-600 transition p-1" title="Add Sub-category"><i class="fa-solid fa-plus text-xs"></i></button>
-                                    <button onclick="openEditCategoryModal('${c.id}', event)" class="text-slate-400 hover:text-indigo-600 transition p-1" title="Edit Category"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button onclick="deleteCategory('${c.id}', event)" class="text-slate-400 hover:text-red-500 transition p-1" title="Delete Category"><i class="fa-solid fa-trash text-xs"></i></button>
-                                    </div>
+            // Render a single category row together with its (expanded) subtree.
+            const renderCategoryRow = (c, depth) => {
+                const hasChildren = getChildCategories(c.id).length > 0;
+                const expanded = c.expanded !== false;
+                const selected = state.activeCategoryIds.includes(c.id);
+                const rowClasses = selected
+                    ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400'
+                    : 'hover:bg-slate-50 dark:hover:bg-dark-700 text-slate-600 dark:text-slate-300';
+                return `
+                    <div>
+                        <div onclick="toggleCategory('${c.id}')" class="group flex items-center justify-between px-2 py-2 rounded-lg text-sm font-medium cursor-pointer transition ${rowClasses}" style="padding-left:${8 + depth * 16}px">
+                            <span class="flex items-center min-w-0 gap-1.5">
+                                <button onclick="toggleCategoryExpanded('${c.id}', event)" class="w-4 shrink-0 text-center text-[10px] ${hasChildren ? 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200' : 'invisible'}" title="${hasChildren ? (expanded ? 'Collapse' : 'Expand') : ''}">
+                                    <i class="fa-solid ${expanded ? 'fa-chevron-down' : 'fa-chevron-right'}"></i>
+                                </button>
+                                <input type="checkbox" ${selected ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleCategory('${c.id}')" title="${selected ? 'Remove from filter' : 'Add to filter'}" class="h-3.5 w-3.5 shrink-0 rounded accent-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                                <i class="fa-solid fa-folder mr-1 text-xs text-amber-500 shrink-0"></i>
+                                <span class="truncate">${escapeHtml(c.name)}</span>
+                            </span>
+                            <div class="flex items-center shrink-0">
+                                <button onclick="toggleFavourite('${c.id}', event)" class="${c.favourite ? 'text-amber-500' : 'text-slate-300 dark:text-slate-600 hover:text-amber-500'} transition p-1" title="${c.favourite ? 'Remove from Favourites' : 'Add to Favourites'}"><i class="fa-solid ${c.favourite ? 'fa-star' : 'fa-regular fa-star'} text-xs"></i></button>
+                                <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition shrink-0">
+                                <button onclick="openCategoryModal('${c.id}', event)" class="text-slate-400 hover:text-indigo-600 transition p-1" title="Add Sub-category"><i class="fa-solid fa-plus text-xs"></i></button>
+                                <button onclick="openEditCategoryModal('${c.id}', event)" class="text-slate-400 hover:text-indigo-600 transition p-1" title="Edit Category"><i class="fa-solid fa-pen text-xs"></i></button>
+                                <button onclick="deleteCategory('${c.id}', event)" class="text-slate-400 hover:text-red-500 transition p-1" title="Delete Category"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </div>
                             </div>
-                            ${hasChildren && expanded ? renderCategoryRows(c.id, depth + 1) : ''}
                         </div>
-                    `;
-                }).join('');
+                        ${hasChildren && expanded ? renderCategoryRows(c.id, depth + 1) : ''}
+                    </div>
+                `;
+            };
+            // Render the rows for the children of a given parent (or top-level when null).
+            const renderCategoryRows = (parentId, depth) => {
+                const children = parentId === null ? getTopLevelCategories() : getChildCategories(parentId);
+                return children.map(c => renderCategoryRow(c, depth)).join('');
             };
 
             catList.innerHTML = `
@@ -118,7 +121,7 @@
             if (favouriteRoots.length > 0) {
                 catList.innerHTML += `
                             <div class="flex items-center justify-between px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500"><span><i class="fa-solid fa-star mr-1.5 text-amber-500"></i> Favourites</span></div>
-                            ${favouriteRoots.map(r => renderCategoryRows(r.id, 0)).join('')}
+                            ${favouriteRoots.map(r => renderCategoryRow(r, 0)).join('')}
                             <div class="border-t border-slate-200/70 dark:border-dark-700/70 mt-2 pt-2"></div>
                         `;
             }
