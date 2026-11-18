@@ -156,6 +156,7 @@
                 document.getElementById('taskRecurOptions').classList.add('hidden');
                 draftSubtasks = [];
             }
+            syncDueDisplay();
             renderDraftSubtasks();
             document.getElementById('taskModal').classList.remove('hidden');
         }

@@ -274,7 +274,46 @@
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Due Date</label>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <input type="datetime-local" id="taskDueInput" class="min-w-0 flex-1 bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+<div class="relative flex-1 min-w-0">
+                                <!-- Visible field: type a due date directly, or click the calendar button to pick one.
+                                         Shows the date on the first line and the time on the second. -->
+                                <textarea id="taskDueDisplay" rows="2" placeholder="No due date" onfocus="dueDisplayFocus()" onblur="dueDisplayCommit()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Type a date like 2026-11-18 14:30, or click the calendar to pick one" class="w-full bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg pl-3 pr-9 py-2 text-sm leading-snug resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-text"></textarea>
+                                <!-- Hidden storage still holds the standard "YYYY-MM-DDTHH:MM" value -->
+                                <input type="datetime-local" id="taskDueInput" class="hidden">
+                                <button type="button" id="duePickerButton" onclick="openDuePicker()" title="Pick a due date" class="absolute right-2 top-1.5 text-slate-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-500 transition p-1">
+                                    <i class="fa-regular fa-calendar"></i>
+                                </button>
+
+                                <!-- Custom date & time picker popup (has a proper OK button) -->
+                                <div id="duePickerBackdrop" class="hidden fixed inset-0 z-40" onclick="closeDuePicker()"></div>
+                                <div id="duePicker" class="hidden fixed z-50 w-72 rounded-xl bg-white dark:bg-dark-800 border border-slate-200 dark:border-dark-700 shadow-xl p-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <button type="button" onclick="duePrevMonth()" title="Previous month" class="w-7 h-7 flex items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-dark-700 transition"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                                        <div id="dueMonthLabel" class="text-sm font-semibold text-slate-700 dark:text-slate-200"></div>
+                                        <button type="button" onclick="dueNextMonth()" title="Next month" class="w-7 h-7 flex items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-dark-700 transition"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                                    </div>
+                                    <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-slate-400 mb-1">
+                                        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                                    </div>
+                                    <div id="dueCalendarGrid" class="grid grid-cols-7 gap-1"></div>
+                                    <div class="mt-3 flex items-center justify-center gap-1.5 text-sm">
+                                        <input type="number" id="dueHourInput" min="1" max="12" inputmode="numeric" title="Hour (1-12)" class="w-14 bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        <span class="text-slate-400">:</span>
+                                        <input type="number" id="dueMinuteInput" min="0" max="59" inputmode="numeric" title="Minutes (0-59)" class="w-14 bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        <select id="dueAmpmSelect" class="bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-dark-700 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <option value="AM">AM</option>
+                                            <option value="PM">PM</option>
+                                        </select>
+                                    </div>
+                                    <div class="mt-3 flex items-center justify-between border-t border-slate-200 dark:border-dark-700 pt-2.5">
+                                        <button type="button" onclick="dueClear()" class="text-xs text-slate-400 hover:text-red-500 transition">Clear</button>
+                                        <div class="flex gap-2">
+                                            <button type="button" onclick="closeDuePicker()" class="px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-slate-100 dark:hover:bg-dark-700 transition">Cancel</button>
+                                            <button type="button" onclick="dueOk()" class="px-4 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-sm">OK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <label class="flex items-center gap-1.5 shrink-0 text-sm text-slate-600 dark:text-slate-300 cursor-pointer select-none" title="When completed, this task moves back to To Do with the next due date">
                                 <input type="checkbox" id="taskRecurringInput" onchange="document.getElementById('taskRecurOptions').classList.toggle('hidden', !this.checked)" class="rounded text-emerald-600 focus:ring-emerald-500">
                                 Recurring
@@ -318,6 +357,7 @@
     <script src="js/category-helpers.js"></script>
     <script src="js/category.js"></script>
     <script src="js/task.js"></script>
+    <script src="js/datetime-picker.js"></script>
     <script src="js/render.js"></script>
     <script src="js/app.js"></script>
 </body>
