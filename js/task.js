@@ -111,7 +111,7 @@
         }
 
         // Task Management
-        function openTaskModal(taskId = null) {
+        function openTaskModal(taskId = null, prefillCategoryId = null) {
             const select = document.getElementById('taskCategorySelect');
             let optionsHtml = '<option value="">General / None</option>';
             const walk = (parentId, depth) => {
@@ -145,7 +145,7 @@
                 document.getElementById('taskModalTitle').innerHTML = '<i class="fa-solid fa-circle-plus text-emerald-600 mr-2"></i> Add New Task';
                 document.getElementById('taskIdInput').value = '';
                 document.getElementById('taskTitleInput').value = '';
-                document.getElementById('taskCategorySelect').value = (state.activeCategoryIds && state.activeCategoryIds[0]) || '';
+                document.getElementById('taskCategorySelect').value = prefillCategoryId || (state.activeCategoryIds && state.activeCategoryIds[0]) || '';
                 document.getElementById('taskPriorityInput').value = 'Medium';
                 document.getElementById('taskStatusInput').value = 'To Do';
                 document.getElementById('taskDueInput').value = '';

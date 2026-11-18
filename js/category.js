@@ -24,6 +24,68 @@
             render();
         }
 
+        // Quick-add dropdown: lets the +/- style plus icon on each category row
+        // offer "New Category" (sub-category) or "New Task" scoped to that category.
+        // Holds the category id the menu was opened for.
+        let quickMenuCategoryId = null;
+        // The icon element that opened the menu, so we can keep it highlighted.
+        let quickMenuTriggerEl = null;
+
+        function closeCategoryQuickMenu() {
+            const menu = document.getElementById('categoryQuickMenu');
+            if (menu) menu.classList.add('hidden');
+            if (quickMenuTriggerEl) {
+                quickMenuTriggerEl.classList.remove('text-indigo-600');
+                quickMenuTriggerEl = null;
+            }
+            const backdrop = document.getElementById('categoryQuickMenuBackdrop');
+            if (backdrop) backdrop.classList.add('hidden');
+            quickMenuCategoryId = null;
+        }
+
+        function openCategoryQuickMenu(categoryId, e) {
+            if (e) e.stopPropagation();
+            closeCategoryQuickMenu();
+            const trigger = e ? e.currentTarget : null;
+            const menu = document.getElementById('categoryQuickMenu');
+            if (!menu) return;
+
+            quickMenuCategoryId = categoryId;
+            quickMenuTriggerEl = trigger;
+            if (trigger) {
+                trigger.classList.add('text-indigo-600');
+                const rect = trigger.getBoundingClientRect();
+                menu.style.left = rect.right + 8 + 'px';
+                menu.style.top = rect.top + 'px';
+            }
+            menu.classList.remove('hidden');
+            const backdrop = document.getElementById('categoryQuickMenuBackdrop');
+            if (backdrop) backdrop.classList.remove('hidden');
+        }
+
+        function quickMenuNewCategory() {
+            const id = quickMenuCategoryId;
+            closeCategoryQuickMenu();
+            openCategoryModal(id);
+        }
+
+        function quickMenuNewTask() {
+            const id = quickMenuCategoryId;
+            closeCategoryQuickMenu();
+            openTaskModal(null, id);
+        }
+
+        // Close the quick menu on any outside click (the backdrop intercepts row clicks).
+        function initCategoryQuickMenu() {
+            const backdrop = document.getElementById('categoryQuickMenuBackdrop');
+            if (backdrop) {
+                backdrop.addEventListener('click', event => { event.stopPropagation(); closeCategoryQuickMenu(); });
+            }
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') closeCategoryQuickMenu();
+            });
+        }
+
         function populateCategoryParentSelect(excludeId) {
             const exclude = new Set(excludeId ? collectCategoryAndDescendants(excludeId) : []);
             let html = '<option value="">None (top-level)</option>';

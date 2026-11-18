@@ -67,6 +67,22 @@
                     <span id="categoryCount" class="text-xs bg-slate-100 dark:bg-dark-700 px-2 py-0.5 rounded-full font-medium">0</span>
                 </div>
                 <div id="categoryList" class="space-y-1 max-h-80 overflow-y-auto pr-1"></div>
+
+                <!-- Quick-add menu: opens from the + icon on a category row.
+                     Gives the choice to create a new (sub)category or a new task
+                     scoped to the hovered category. -->
+                <div id="categoryQuickMenuBackdrop" class="hidden fixed inset-0 z-40"></div>
+                <div id="categoryQuickMenu" class="hidden fixed z-50 w-48 bg-white dark:bg-dark-800 rounded-lg shadow-xl border border-slate-200 dark:border-dark-700 py-1">
+                    <div class="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-dark-700">Quick Add</div>
+                    <button type="button" onclick="quickMenuNewCategory()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-dark-700 transition text-left">
+                        <i class="fa-solid fa-folder-plus text-indigo-600 text-xs w-4 text-center"></i>
+                        <span>New Category</span>
+                    </button>
+                    <button type="button" onclick="quickMenuNewTask()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-dark-700 transition text-left">
+                        <i class="fa-solid fa-plus text-emerald-600 text-xs w-4 text-center"></i>
+                        <span>New Task</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Active Category Notes Section -->

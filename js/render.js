@@ -96,7 +96,7 @@
                             <div class="flex items-center shrink-0">
                                 <button onclick="toggleFavourite('${c.id}', event)" class="${c.favourite ? 'text-amber-500' : 'text-slate-300 dark:text-slate-600 hover:text-amber-500'} transition p-1" title="${c.favourite ? 'Remove from Favourites' : 'Add to Favourites'}"><i class="fa-solid ${c.favourite ? 'fa-star' : 'fa-regular fa-star'} text-xs"></i></button>
                                 <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition shrink-0">
-                                <button onclick="openCategoryModal('${c.id}', event)" class="text-slate-400 hover:text-indigo-600 transition p-1" title="Add Sub-category"><i class="fa-solid fa-plus text-xs"></i></button>
+                                <button type="button" onclick="openCategoryQuickMenu('${c.id}', event)" class="text-slate-400 hover:text-indigo-600 transition p-1" title="Add Sub-category or Task"><i class="fa-solid fa-plus text-xs"></i></button>
                                 <button onclick="openEditCategoryModal('${c.id}', event)" class="text-slate-400 hover:text-indigo-600 transition p-1" title="Edit Category"><i class="fa-solid fa-pen text-xs"></i></button>
                                 <button onclick="deleteCategory('${c.id}', event)" class="text-slate-400 hover:text-red-500 transition p-1" title="Delete Category"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </div>
