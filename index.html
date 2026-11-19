@@ -49,6 +49,9 @@
                     <i class="fa-solid fa-upload"></i>
                     <input type="file" id="importFile" class="hidden" onchange="importData(event)">
                 </label>
+                <button onclick="openHelp()" aria-label="Help" title="Help — press ? or F1" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-700 rounded-lg transition">
+                    <i class="fa-solid fa-circle-question"></i>
+                </button>
                 <button onclick="toggleDarkMode()" title="Toggle Theme" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-700 rounded-lg transition">
                     <i class="fa-solid fa-moon dark:fa-sun" id="themeIcon"></i>
                 </button>
@@ -352,6 +355,203 @@
         </div>
     </div>
 
+    <!-- Help Page: full-screen in-app help overlay (open via the ? button, or press ?/F1) -->
+    <div id="helpPage" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true" aria-label="Help — How to use Taskaroo">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeHelp()"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4 sm:p-6">
+            <div class="bg-white dark:bg-dark-800 rounded-xl shadow-2xl border border-slate-200 dark:border-dark-700 w-full max-w-3xl flex flex-col max-h-[90vh]">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-dark-700 shrink-0">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">
+                        <i class="fa-solid fa-circle-question text-indigo-600 mr-2"></i> How to Use Taskaroo
+                    </h3>
+                    <button onclick="closeHelp()" aria-label="Close help" title="Close help (Esc)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition text-lg"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div id="helpContent" class="overflow-y-auto px-6 py-5 space-y-6">
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="helpJumpTo('sec-getting-started')" class="text-xs px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-950 transition">Getting Started</button>
+                        <button onclick="helpJumpTo('sec-categories')" class="text-xs px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-950 transition">Categories</button>
+                        <button onclick="helpJumpTo('sec-tasks')" class="text-xs px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-950 transition">Tasks</button>
+                        <button onclick="helpJumpTo('sec-subtasks')" class="text-xs px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-950 transition">Subtasks</button>
+                        <button onclick="helpJumpTo('sec-views')" class="text-xs px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-950 transition">Views</button>
+                        <button onclick="helpJumpTo('sec-search')" class="text-xs px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-950 transition">Search &amp; Filters</button>
+                        <button onclick="helpJumpTo('sec-recurring')" class="text-xs px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-950 transition">Recurring</button>
+                        <button onclick="helpJumpTo('sec-backup')" class="text-xs px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-950 transition">Backup &amp; Restore</button>
+                    </div>
+
+                    <section id="sec-getting-started">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center mb-3">
+                            <i class="fa-solid fa-rocket mr-2"></i> Getting Started
+                        </h4>
+                        <ul class="space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs mt-0.5"><i class="fa-solid fa-bolt"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Everything runs in your browser.</strong> Taskaroo is a single-page app — no account or sign-in needed. Categories, notes, and tasks are managed right here, and nothing is uploaded anywhere.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs mt-0.5"><i class="fa-solid fa-floppy-disk"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Data is saved automatically.</strong> Every change is stored in your browser's local storage, so your work persists between visits — but it stays on this browser/device. Use Backup &amp; Restore to move it.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs mt-0.5"><i class="fa-solid fa-map"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Where things live.</strong> The sidebar holds your categories and per-category notes; the main area shows tasks in Kanban or List view; the top bar has <em>New Category</em>, <em>New Task</em>, backup, and theme controls.</span>
+                            </li>
+                        </ul>
+                    </section>
+                    <section id="sec-categories">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center mb-3">
+                            <i class="fa-solid fa-folder-tree mr-2"></i> Categories
+                        </h4>
+                        <ul class="space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 text-xs mt-0.5"><i class="fa-solid fa-plus"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Create categories</strong> with the <em>New Category</em> button in the top bar, or hover a category row and use its <strong>+</strong> icon to add a sub-category — or a new task scoped to that category.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 text-xs mt-0.5"><i class="fa-solid fa-chevron-down"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Nest them.</strong> Categories support sub-categories. Use the chevron to expand or collapse a branch, and the pencil to rename or re-parent a category.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 text-xs mt-0.5"><i class="fa-solid fa-star"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Pin favourites.</strong> Click a category's star to pin it to the <em>Favourites</em> section at the top of the sidebar for quick access.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 text-xs mt-0.5"><i class="fa-solid fa-note-sticky"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Category Notes.</strong> Select a single category and a notes box appears in the sidebar for specs, links, or reminders. Click <em>Save Changes</em> when you're done.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 text-xs mt-0.5"><i class="fa-solid fa-filter"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Filter by category.</strong> Tick a category's checkbox to show only its tasks; selecting a parent also selects its whole branch. Untick any category to hide it again, or click <em>All Tasks</em> to show everything. Deleting a category unassigns — but never deletes — its tasks.</span>
+                            </li>
+                        </ul>
+                    </section>
+                    <section id="sec-tasks">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center mb-3">
+                            <i class="fa-solid fa-list-check mr-2"></i> Tasks
+                        </h4>
+                        <ul class="space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-xs mt-0.5"><i class="fa-solid fa-plus"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Create a task</strong> with the <em>New Task</em> button in the top bar, or hover a category row and use its <strong>+</strong> menu. A task carries a title, category, priority, status, optional due date/time, optional repeating rule, and optional subtasks.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-xs mt-0.5"><i class="fa-solid fa-calendar-day"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Set a due date.</strong> Click the calendar button next to the field to open the picker (choose a date and time, then <em>OK</em>), or type directly like <span class="font-mono text-[11px]">2026-12-01 09:00</span>. Badges show the due time — amber <em>Due Today</em>, red <em>Overdue</em>.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-xs mt-0.5"><i class="fa-solid fa-flag"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Priorities</strong> (High / Medium / Low) color-code cards and list rows so important work stands out.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-xs mt-0.5"><i class="fa-solid fa-square-check"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Complete a task</strong> by ticking its checkbox (in Kanban or List view) or dragging the card onto the <em>Done</em> column. Untick or drag back to reopen it.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-xs mt-0.5"><i class="fa-solid fa-pen"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Edit or delete</strong> any task with the pencil / trash icons that appear on hover.</span>
+                            </li>
+                        </ul>
+                    </section>
+                    <section id="sec-subtasks">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center mb-3">
+                            <i class="fa-solid fa-list-ul mr-2"></i> Subtasks &amp; Checklists
+                        </h4>
+                        <ul class="space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-xs mt-0.5"><i class="fa-solid fa-plus"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Add steps</strong> while creating or editing a task: type into the <em>Subtasks / Checklist</em> box and press Enter or click <em>Add</em>.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-xs mt-0.5"><i class="fa-solid fa-square-check"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Tick them off</strong> directly on the card. A progress bar and a 2/4-style counter show how much of the checklist is complete.</span>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section id="sec-views">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center mb-3">
+                            <i class="fa-solid fa-diagram-project mr-2"></i> Kanban &amp; List Views
+                        </h4>
+                        <ul class="space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-xs mt-0.5"><i class="fa-solid fa-grip-vertical"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Kanban</strong> shows three columns — <em>To Do</em>, <em>In Progress</em>, <em>Done</em>. Drag a card onto another column to move it; dropping on <em>Done</em> completes it.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-xs mt-0.5"><i class="fa-solid fa-table-list"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">List view</strong> shows every task in a sortable table. Click a column header to sort by task, category, priority, status, or due date (click again to reverse). Use the dropdowns to filter, and <em>Clear filters</em> to reset.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-xs mt-0.5"><i class="fa-solid fa-arrows-left-right"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Switch anytime</strong> with the Kanban / List toggle above the columns; your choice is remembered.</span>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section id="sec-search">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center mb-3">
+                            <i class="fa-solid fa-magnifying-glass mr-2"></i> Search &amp; Filters
+                        </h4>
+                        <ul class="space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 text-xs mt-0.5"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Search</strong> matches task titles <em>and</em> subtask titles — searching a step like "clean toilet bowl" finds its parent task.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 text-xs mt-0.5"><i class="fa-solid fa-filter"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Combine filters.</strong> Layer the priority dropdown, the category checkboxes, and the list view's own filters for a precise view.</span>
+                            </li>
+                        </ul>
+                    </section>
+                    <section id="sec-recurring">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center mb-3">
+                            <i class="fa-solid fa-rotate mr-2"></i> Recurring Tasks
+                        </h4>
+                        <ul class="space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-violet-50 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 text-xs mt-0.5"><i class="fa-solid fa-clock-rotate-left"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Set a rhythm.</strong> Tick <em>Recurring</em> in the task form and choose an interval — minute, hour, day, week, or month — plus an "every N" amount, for example every 2 weeks.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-violet-50 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 text-xs mt-0.5"><i class="fa-solid fa-infinity"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Limit repeats (optional).</strong> Enter how many <em>additional</em> completions to run after the first occurrence; leave the field blank (<strong>∞</strong>) to repeat forever.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-violet-50 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 text-xs mt-0.5"><i class="fa-solid fa-rotate"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">On completion</strong> a recurring task returns to <em>To Do</em> with its next due date. Hourly/minute tasks skip missed occurrences and schedule from now; daily/weekly/monthly tasks roll forward, so a forgotten chore is still due next cycle.</span>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section id="sec-backup">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center mb-3">
+                            <i class="fa-solid fa-download mr-2"></i> Backup &amp; Restore
+                        </h4>
+                        <ul class="space-y-2.5 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs mt-0.5"><i class="fa-solid fa-download"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Backup.</strong> The download (↓) icon in the top bar exports all of your data as a <em>taskaroo_backup.json</em> file you can keep anywhere.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs mt-0.5"><i class="fa-solid fa-upload"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Restore.</strong> The upload (↑) icon reads a backup and replaces the current data — handy when switching browsers or devices. An alert confirms success or warns about invalid files.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="w-6 h-6 shrink-0 flex items-center justify-center rounded-md bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs mt-0.5"><i class="fa-solid fa-shield-halved"></i></span>
+                                <span><strong class="text-slate-800 dark:text-slate-100">Everything stays private.</strong> Data lives in your browser's local storage, and JSON backups are the only files involved.</span>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+
+                <div class="px-6 py-3 border-t border-slate-200 dark:border-dark-700 text-xs text-slate-500 dark:text-slate-400 shrink-0 flex flex-wrap items-center justify-between gap-2">
+                    <span><i class="fa-solid fa-circle-info text-indigo-500 mr-1.5"></i>Tip: press <kbd class="inline-block px-1.5 py-0.5 rounded bg-slate-100 dark:bg-dark-700 border border-slate-200 dark:border-dark-600 text-[11px] font-mono leading-none">?</kbd> to open this page and <kbd class="inline-block px-1.5 py-0.5 rounded bg-slate-100 dark:bg-dark-700 border border-slate-200 dark:border-dark-600 text-[11px] font-mono leading-none">Esc</kbd> to close it.</span>
+                    <span class="text-slate-400 dark:text-slate-500">All data stays in your browser's local storage.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Application Scripts: split into modules to keep each file small and focused -->
     <script src="js/state.js"></script>
     <script src="js/category-helpers.js"></script>
@@ -359,6 +559,7 @@
     <script src="js/task.js"></script>
     <script src="js/datetime-picker.js"></script>
     <script src="js/render.js"></script>
+    <script src="js/help.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
