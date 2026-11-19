@@ -2,39 +2,39 @@
 // Declares the global `state` object read/written by all other modules.
         const defaultState = {
             categories: [
-                { id: 'c1', name: 'Sewing', notes: 'All sewing and garment projects.', parentId: null, expanded: true, favourite: false },
-                { id: 'c2', name: 'Pants', notes: 'Pant patterns, fitting, and construction.', parentId: 'c1', expanded: true, favourite: false },
-                { id: 'c3', name: 'Dresses', notes: 'Dress patterns and construction.', parentId: 'c1', expanded: true, favourite: false },
-                { id: 'c4', name: 'Zipper Details', notes: 'Zipper installation techniques.', parentId: 'c3', expanded: true, favourite: false }
+                { id: 'c1', name: 'Cleaning', notes: 'Clean.', parentId: null, expanded: true, favourite: false },
+                { id: 'c2', name: 'Bathroom', notes: 'Clean the bathroom.', parentId: 'c1', expanded: true, favourite: false },
+                { id: 'c3', name: 'Kitchen', notes: 'Clean the kitchen.', parentId: 'c1', expanded: true, favourite: false },
+                { id: 'c4', name: 'Counter', notes: 'Clean the counter.', parentId: 'c3', expanded: true, favourite: false }
             ],
             tasks: [
                 {
                     id: 't1',
-                    title: 'Cut out pants pattern pieces',
+                    title: 'Clean the toilet',
                     categoryId: 'c2',
                     priority: 'High',
                     status: 'Done',
                     dueDate: '2026-11-10T10:00',
                     subtasks: [
-                        { id: 's1', title: 'Pre-wash fabric', done: true },
-                        { id: 's2', title: 'Lay out and pin pattern', done: true }
+                        { id: 's1', title: 'clean toilet bowl', done: true },
+                        { id: 's2', title: 'clean exterior', done: true }
                     ]
                 },
                 {
                     id: 't2',
-                    title: 'Install invisible zipper on dress',
+                    title: 'Clean the counter',
                     categoryId: 'c4',
                     priority: 'High',
                     status: 'In Progress',
                     dueDate: '2026-11-15T09:00',
                     subtasks: [
-                        { id: 's3', title: 'Baste zipper seam', done: true },
-                        { id: 's4', title: 'Press seam open', done: false }
+                        { id: 's3', title: 'clear the counter', done: true },
+                        { id: 's4', title: 'wipe the counter', done: false }
                     ]
                 },
                 {
                     id: 't3',
-                    title: 'Sew pant side seams and hem',
+                    title: 'Clean the shower stall',
                     categoryId: 'c2',
                     priority: 'Medium',
                     status: 'To Do',
